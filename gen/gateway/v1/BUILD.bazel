@@ -1,0 +1,17 @@
+load("//tools/go:defs.bzl", "go_library")
+
+# This library wraps the pre-generated protobuf/gRPC stubs.
+# To regenerate: make proto  (uses protoc outside Bazel)
+# The importpath intentionally matches the go_package option in gateway.proto.
+go_library(
+    name = "gatewayv1",
+    srcs = glob(["*.go"]),
+    visibility = ["//visibility:public"],
+    deps = [
+        "@org_golang_google_grpc//:go_default_library",
+        "@org_golang_google_grpc//codes:go_default_library",
+        "@org_golang_google_grpc//status:go_default_library",
+        "@org_golang_google_protobuf//reflect/protoreflect:go_default_library",
+        "@org_golang_google_protobuf//runtime/protoimpl:go_default_library",
+    ],
+)

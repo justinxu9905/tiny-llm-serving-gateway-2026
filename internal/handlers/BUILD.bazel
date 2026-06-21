@@ -1,0 +1,16 @@
+# gazelle:ignore
+
+load("//tools/go:defs.bzl", "go_library")
+
+go_library(
+    name = "handlers",
+    srcs = ["llm.go"],
+    visibility = ["//visibility:public"],
+    deps = [
+        "//gen/gateway/v1:gatewayv1",
+        "//internal/mappers",
+        "//internal/router",
+        "@org_golang_google_grpc//codes",
+        "@org_golang_google_grpc//status",
+    ],
+)

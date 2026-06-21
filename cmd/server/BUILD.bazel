@@ -1,0 +1,24 @@
+# gazelle:ignore
+
+load("//tools/go:defs.bzl", "go_binary", "go_library")
+
+go_library(
+    name = "server_lib",
+    srcs = ["main.go"],
+    visibility = ["//visibility:private"],
+    deps = [
+        "//gen/gateway/v1:gatewayv1",
+        "//internal/config",
+        "//internal/handlers",
+        "//internal/providers",
+        "//internal/router",
+        "@org_golang_google_grpc//:grpc",
+        "@org_uber_go_fx//:fx",
+    ],
+)
+
+go_binary(
+    name = "server",
+    embed = [":server_lib"],
+    visibility = ["//visibility:public"],
+)

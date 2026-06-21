@@ -1,0 +1,7 @@
+load("@gazelle//:def.bzl", "gazelle")
+
+# gazelle:prefix github.com/xuzixiang/tiny-llm-serving-gateway
+# gazelle:exclude gen
+# gazelle:exclude proto
+
+gazelle(name = "gazelle")

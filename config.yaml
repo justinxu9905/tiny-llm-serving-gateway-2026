@@ -1,0 +1,10 @@
+server:
+  port: 50051
+
+providers:
+  anthropic:
+    api_key: ""
+    base_url: "https://api.anthropic.com"
+  openai:
+    api_key: ""
+    base_url: "https://api.openai.com"

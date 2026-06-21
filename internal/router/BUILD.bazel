@@ -1,0 +1,14 @@
+# gazelle:ignore
+
+load("//tools/go:defs.bzl", "go_library")
+
+go_library(
+    name = "router",
+    srcs = ["router.go"],
+    visibility = ["//visibility:public"],
+    deps = [
+        "//internal/entities",
+        "//internal/providers",
+        "@org_uber_go_fx//:fx",
+    ],
+)

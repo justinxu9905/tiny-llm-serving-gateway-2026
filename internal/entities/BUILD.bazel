@@ -1,0 +1,13 @@
+# gazelle:ignore
+
+load("//tools/go:defs.bzl", "go_library")
+
+go_library(
+    name = "entities",
+    srcs = [
+        "anthropic.go",
+        "entities.go",
+        "openai.go",
+    ],
+    visibility = ["//visibility:public"],
+)

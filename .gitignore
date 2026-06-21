@@ -1,0 +1,29 @@
+# Bazel output symlinks.
+/bazel-*
+
+# Local environment and secrets.
+.env
+.env.*
+!.env.example
+
+# Logs and temporary runtime files.
+*.log
+*.pid
+tmp/
+temp/
+
+# Build artifacts from ad-hoc local commands.
+/bin/
+/dist/
+/out/
+*.test
+*.prof
+*.cover
+coverage.out
+
+# OS and editor metadata.
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo

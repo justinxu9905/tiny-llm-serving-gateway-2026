@@ -1,0 +1,16 @@
+# gazelle:ignore
+
+load("//tools/go:defs.bzl", "go_library")
+
+go_library(
+    name = "config",
+    srcs = [
+        "config.go",
+        "fx.go",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        "@in_gopkg_yaml_v3//:yaml_v3",
+        "@org_uber_go_fx//:fx",
+    ],
+)
