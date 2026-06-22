@@ -39,3 +39,25 @@ type OpenAIAPIChunk struct {
 		FinishReason *string `json:"finish_reason"`
 	} `json:"choices"`
 }
+
+type OpenAIEmbeddingRequest struct {
+	Model string   `json:"model"`
+	Input []string `json:"input"`
+}
+
+type OpenAIEmbeddingResponse struct {
+	Object string `json:"object"`
+	Data   []struct {
+		Object    string    `json:"object"`
+		Embedding []float32 `json:"embedding"`
+		Index     int32     `json:"index"`
+	} `json:"data"`
+	Model string `json:"model"`
+	Usage struct {
+		PromptTokens int32 `json:"prompt_tokens"`
+		TotalTokens  int32 `json:"total_tokens"`
+	} `json:"usage"`
+	Error *struct {
+		Message string `json:"message"`
+	} `json:"error"`
+}

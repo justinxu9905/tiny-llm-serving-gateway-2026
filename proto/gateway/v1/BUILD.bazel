@@ -1,0 +1,16 @@
+load("@rules_proto//proto:defs.bzl", "proto_library")
+
+proto_library(
+    name = "gateway_proto",
+    srcs = ["gateway.proto"],
+    strip_import_prefix = "/proto",
+    visibility = ["//visibility:public"],
+)
+
+proto_library(
+    name = "gateway_api_proto",
+    srcs = ["gateway_api.proto"],
+    deps = [":gateway_proto"],
+    strip_import_prefix = "/proto",
+    visibility = ["//visibility:public"],
+)

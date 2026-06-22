@@ -24,6 +24,7 @@ const _ = grpc.SupportPackageIsVersion7
 type GatewayServiceClient interface {
 	Chat(ctx context.Context, in *ChatRequest, opts ...grpc.CallOption) (*ChatResponse, error)
 	ChatStream(ctx context.Context, in *ChatRequest, opts ...grpc.CallOption) (GatewayService_ChatStreamClient, error)
+	Embed(ctx context.Context, in *EmbedRequest, opts ...grpc.CallOption) (*EmbedResponse, error)
 }
 
 type gatewayServiceClient struct {
@@ -75,12 +76,22 @@ func (x *gatewayServiceChatStreamClient) Recv() (*ChatChunk, error) {
 	return m, nil
 }
 
+func (c *gatewayServiceClient) Embed(ctx context.Context, in *EmbedRequest, opts ...grpc.CallOption) (*EmbedResponse, error) {
+	out := new(EmbedResponse)
+	err := c.cc.Invoke(ctx, "/gateway.v1.GatewayService/Embed", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // GatewayServiceServer is the server API for GatewayService service.
 // All implementations must embed UnimplementedGatewayServiceServer
 // for forward compatibility
 type GatewayServiceServer interface {
 	Chat(context.Context, *ChatRequest) (*ChatResponse, error)
 	ChatStream(*ChatRequest, GatewayService_ChatStreamServer) error
+	Embed(context.Context, *EmbedRequest) (*EmbedResponse, error)
 	mustEmbedUnimplementedGatewayServiceServer()
 }
 
@@ -93,6 +104,9 @@ func (UnimplementedGatewayServiceServer) Chat(context.Context, *ChatRequest) (*C
 }
 func (UnimplementedGatewayServiceServer) ChatStream(*ChatRequest, GatewayService_ChatStreamServer) error {
 	return status.Errorf(codes.Unimplemented, "method ChatStream not implemented")
+}
+func (UnimplementedGatewayServiceServer) Embed(context.Context, *EmbedRequest) (*EmbedResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Embed not implemented")
 }
 func (UnimplementedGatewayServiceServer) mustEmbedUnimplementedGatewayServiceServer() {}
 
@@ -146,6 +160,24 @@ func (x *gatewayServiceChatStreamServer) Send(m *ChatChunk) error {
 	return x.ServerStream.SendMsg(m)
 }
 
+func _GatewayService_Embed_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(EmbedRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GatewayServiceServer).Embed(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/gateway.v1.GatewayService/Embed",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GatewayServiceServer).Embed(ctx, req.(*EmbedRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // GatewayService_ServiceDesc is the grpc.ServiceDesc for GatewayService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -156,6 +188,10 @@ var GatewayService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Chat",
 			Handler:    _GatewayService_Chat_Handler,
+		},
+		{
+			MethodName: "Embed",
+			Handler:    _GatewayService_Embed_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

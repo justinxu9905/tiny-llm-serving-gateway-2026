@@ -37,3 +37,26 @@ func ChatChunkEntityToProto(chunk entities.ChatChunk) *gatewayv1.ChatChunk {
 		Done:  chunk.Done,
 	}
 }
+
+func EmbedRequestProtoToEntity(req *gatewayv1.EmbedRequest) *entities.EmbedRequest {
+	return &entities.EmbedRequest{
+		Model: req.Model,
+		Input: req.Input,
+	}
+}
+
+func EmbedResponseEntityToProto(resp *entities.EmbedResponse) *gatewayv1.EmbedResponse {
+	embeddings := make([]*gatewayv1.Embedding, len(resp.Embeddings))
+	for i, e := range resp.Embeddings {
+		embeddings[i] = &gatewayv1.Embedding{
+			Index:  e.Index,
+			Vector: e.Vector,
+		}
+	}
+	return &gatewayv1.EmbedResponse{
+		Model:        resp.Model,
+		Embeddings:   embeddings,
+		PromptTokens: resp.PromptTokens,
+		TotalTokens:  resp.TotalTokens,
+	}
+}

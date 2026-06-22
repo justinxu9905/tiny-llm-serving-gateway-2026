@@ -4,37 +4,17 @@ package gateway.v1;
 
 option go_package = "github.com/xuzixiang/tiny-llm-serving-gateway/gen/gateway/v1;gatewayv1";
 
-service GatewayService {
-  rpc Chat(ChatRequest) returns (ChatResponse);
-  rpc ChatStream(ChatRequest) returns (stream ChatChunk);
-}
-
 message Message {
   string role = 1;
   string content = 2;
 }
 
-message ChatRequest {
-  string model = 1;
-  repeated Message messages = 2;
-  float temperature = 3;
-  int32 max_tokens = 4;
-}
-
-message ChatResponse {
-  string id = 1;
-  string model = 2;
-  string content = 3;
-  Usage usage = 4;
-}
-
-message ChatChunk {
-  string id = 1;
-  string delta = 2;
-  bool done = 3;
-}
-
 message Usage {
   int32 input_tokens = 1;
   int32 output_tokens = 2;
+}
+
+message Embedding {
+  int32 index = 1;
+  repeated float vector = 2;
 }

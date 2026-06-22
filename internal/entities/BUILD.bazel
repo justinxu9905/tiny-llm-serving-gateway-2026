@@ -6,7 +6,7 @@ go_library(
     name = "entities",
     srcs = [
         "anthropic.go",
-        "entities.go",
+        "gateway.go",
         "openai.go",
     ],
     visibility = ["//visibility:public"],

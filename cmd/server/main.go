@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net"
+	"net/http"
 
 	"go.uber.org/fx"
 	"google.golang.org/grpc"
@@ -21,33 +22,44 @@ func main() {
 		providers.Module,
 		fx.Provide(
 			router.New,
-			handler.New,
+			handler.NewGrpcHandler,
+			handler.NewHttpHandler,
 		),
 		fx.Invoke(registerAndServe),
 	).Run()
 }
 
-func registerAndServe(lc fx.Lifecycle, cfg *config.Config, h *handler.LLMHandler) {
+func registerAndServe(lc fx.Lifecycle, cfg *config.Config, h *handler.GrpcHandler, openAIHTTP *handler.HttpHandler) {
 	srv := grpc.NewServer()
 	gatewayv1.RegisterGatewayServiceServer(srv, h)
+	httpSrv := &http.Server{
+		Addr:    fmt.Sprintf(":%d", cfg.Server.HttpPort),
+		Handler: openAIHTTP.Routes(),
+	}
 
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
-			lis, err := net.Listen("tcp", fmt.Sprintf(":%d", cfg.Server.Port))
+			lis, err := net.Listen("tcp", fmt.Sprintf(":%d", cfg.Server.GrpcPort))
 			if err != nil {
-				return fmt.Errorf("listen on :%d: %w", cfg.Server.Port, err)
+				return fmt.Errorf("listen on :%d: %w", cfg.Server.GrpcPort, err)
 			}
 			go func() {
 				if err := srv.Serve(lis); err != nil {
 					fmt.Printf("grpc serve error: %v\n", err)
 				}
 			}()
-			fmt.Printf("gRPC server listening on :%d\n", cfg.Server.Port)
+			fmt.Printf("gRPC server listening on :%d\n", cfg.Server.GrpcPort)
+			go func() {
+				if err := httpSrv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+					fmt.Printf("http serve error: %v\n", err)
+				}
+			}()
+			fmt.Printf("OpenAI-compatible HTTP server listening on :%d\n", cfg.Server.HttpPort)
 			return nil
 		},
 		OnStop: func(ctx context.Context) error {
 			srv.GracefulStop()
-			return nil
+			return httpSrv.Shutdown(ctx)
 		},
 	})
 }

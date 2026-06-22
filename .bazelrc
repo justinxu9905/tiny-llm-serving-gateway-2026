@@ -1,2 +1,4 @@
 build --enable_bzlmod
 build --incompatible_enable_cc_toolchain_resolution=false
+build --host_copt=-Wno-error=deprecated-builtins
+build --copt=-Wno-error=deprecated-builtins

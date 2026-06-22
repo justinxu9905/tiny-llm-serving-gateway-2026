@@ -7,7 +7,8 @@ import (
 )
 
 type ServerConfig struct {
-	Port int `yaml:"port"`
+	GrpcPort int `yaml:"grpc_port"`
+	HttpPort int `yaml:"http_port"`
 }
 
 type AnthropicConfig struct {
@@ -38,6 +39,9 @@ func Load() (*Config, error) {
 	var cfg Config
 	if err := yaml.Unmarshal(data, &cfg); err != nil {
 		return nil, err
+	}
+	if cfg.Server.HttpPort == 0 {
+		cfg.Server.HttpPort = 8080
 	}
 	return &cfg, nil
 }

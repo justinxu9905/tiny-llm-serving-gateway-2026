@@ -1,0 +1,5 @@
+bazel-bin
+bazel-out
+bazel-testlogs
+bazel-tiny-llm-serving-gateway
+bazel-tiny-llm-serving-gateway-2026

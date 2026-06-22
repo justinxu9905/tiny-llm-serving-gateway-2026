@@ -47,3 +47,19 @@ func (r *Router) Stream(ctx context.Context, req *entities.ChatRequest) (<-chan 
 	}
 	return p.Stream(ctx, req)
 }
+
+func (r *Router) Embed(ctx context.Context, req *entities.EmbedRequest) (*entities.EmbedResponse, error) {
+	p, err := r.route(req.Model)
+	if err != nil {
+		return nil, err
+	}
+	return p.Embed(ctx, req)
+}
+
+func (r *Router) ProviderNames() []string {
+	names := make([]string, len(r.providers))
+	for i, p := range r.providers {
+		names[i] = p.Name()
+	}
+	return names
+}

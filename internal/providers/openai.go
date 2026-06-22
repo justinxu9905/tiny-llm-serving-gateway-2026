@@ -35,15 +35,16 @@ func (p *openaiProvider) SupportsModel(model string) bool {
 	return strings.HasPrefix(model, "gpt") ||
 		strings.HasPrefix(model, "o1") ||
 		strings.HasPrefix(model, "o3") ||
-		strings.HasPrefix(model, "o4")
+		strings.HasPrefix(model, "o4") ||
+		strings.HasPrefix(model, "text-embedding")
 }
 
-func (p *openaiProvider) doRequest(ctx context.Context, payload any, stream bool) (*http.Response, error) {
+func (p *openaiProvider) doRequest(ctx context.Context, path string, payload any, stream bool) (*http.Response, error) {
 	body, err := json.Marshal(payload)
 	if err != nil {
 		return nil, err
 	}
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, p.baseURL+"/v1/chat/completions", bytes.NewReader(body))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, p.baseURL+path, bytes.NewReader(body))
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +72,7 @@ func (p *openaiProvider) Chat(ctx context.Context, req *entities.ChatRequest) (*
 		Temp:     req.Temperature,
 		MaxToks:  req.MaxTokens,
 	}
-	resp, err := p.doRequest(ctx, payload, false)
+	resp, err := p.doRequest(ctx, "/v1/chat/completions", payload, false)
 	if err != nil {
 		return nil, err
 	}
@@ -107,7 +108,7 @@ func (p *openaiProvider) Stream(ctx context.Context, req *entities.ChatRequest) 
 		MaxToks:  req.MaxTokens,
 		Stream:   true,
 	}
-	resp, err := p.doRequest(ctx, payload, true)
+	resp, err := p.doRequest(ctx, "/v1/chat/completions", payload, true)
 	if err != nil {
 		return nil, err
 	}
@@ -119,6 +120,40 @@ func (p *openaiProvider) Stream(ctx context.Context, req *entities.ChatRequest) 
 		p.consumeStream(resp.Body, ch)
 	}()
 	return ch, nil
+}
+
+func (p *openaiProvider) Embed(ctx context.Context, req *entities.EmbedRequest) (*entities.EmbedResponse, error) {
+	payload := entities.OpenAIEmbeddingRequest{
+		Model: req.Model,
+		Input: req.Input,
+	}
+	resp, err := p.doRequest(ctx, "/v1/embeddings", payload, false)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	var er entities.OpenAIEmbeddingResponse
+	if err := json.NewDecoder(resp.Body).Decode(&er); err != nil {
+		return nil, err
+	}
+	if er.Error != nil {
+		return nil, fmt.Errorf("openai error: %s", er.Error.Message)
+	}
+
+	embeddings := make([]entities.Embedding, len(er.Data))
+	for i, e := range er.Data {
+		embeddings[i] = entities.Embedding{
+			Index:  e.Index,
+			Vector: e.Embedding,
+		}
+	}
+	return &entities.EmbedResponse{
+		Model:        er.Model,
+		Embeddings:   embeddings,
+		PromptTokens: er.Usage.PromptTokens,
+		TotalTokens:  er.Usage.TotalTokens,
+	}, nil
 }
 
 func (p *openaiProvider) consumeStream(r io.Reader, ch chan<- entities.ChatChunk) {

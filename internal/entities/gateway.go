@@ -31,3 +31,20 @@ type Usage struct {
 	InputTokens  int32
 	OutputTokens int32
 }
+
+type EmbedRequest struct {
+	Model string
+	Input []string
+}
+
+type Embedding struct {
+	Index  int32
+	Vector []float32
+}
+
+type EmbedResponse struct {
+	Model        string
+	Embeddings   []Embedding
+	PromptTokens int32
+	TotalTokens  int32
+}

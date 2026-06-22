@@ -37,6 +37,10 @@ func (p *anthropicProvider) SupportsModel(model string) bool {
 	return strings.HasPrefix(model, "claude")
 }
 
+func (p *anthropicProvider) Embed(ctx context.Context, req *entities.EmbedRequest) (*entities.EmbedResponse, error) {
+	return nil, fmt.Errorf("anthropic provider does not support embeddings model %q", req.Model)
+}
+
 func (p *anthropicProvider) doRequest(ctx context.Context, payload any, stream bool) (*http.Response, error) {
 	body, err := json.Marshal(payload)
 	if err != nil {
